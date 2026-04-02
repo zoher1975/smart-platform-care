@@ -1,19 +1,26 @@
 require("dotenv").config();
 
 const express = require("express");
-const mongoose = require("mongoose");
+const connectDB = require("./config/db");
 
-// الأكواد القديمة (نحتفظ بها)
+// الأكواد القديمة
 const ProjectManager = require("./core/projects-system");
 const CloneSystem = require("./core/clone-system");
+
+// routes
+const storeRoutes = require("./routes/stores");
 
 const app = express();
 app.use(express.json());
 
 // ===============================
-// 🔹 نظام المشاريع (قديم)
+// الاتصال بقاعدة البيانات
 // ===============================
+connectDB();
 
+// ===============================
+// النظام القديم
+// ===============================
 const manager = new ProjectManager();
 const cloneSystemInstance = new CloneSystem(manager);
 
@@ -44,27 +51,17 @@ app.post("/clone-project", (req, res) => {
 });
 
 // ===============================
-// 🔥 النظام الجديد (Stores API)
+// Store System
 // ===============================
-
-// ربط routes
-const storeRoutes = require("./routes/stores");
 app.use("/api/stores", storeRoutes);
 
-// ===============================
-// 🔥 MongoDB
-// ===============================
+// الصفحة الرئيسية
+app.get("/", (req, res) => {
+  res.send("Grthup Backend is running 🚀");
+});
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.log("❌ DB Error:", err));
-
-// ===============================
-// 🚀 تشغيل السيرفر
-// ===============================
-
+// تشغيل السيرفر
 const PORT = 4000;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
