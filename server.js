@@ -12,6 +12,9 @@ const storeRoutes = require("./routes/stores");
 
 const app = express();
 app.use(express.json());
+// 👇 هنا الإضافة
+const whatsappWebhook = require("./modules/whatsapp/routes/webhook");
+app.use("/api/whatsapp", whatsappWebhook);
 
 // ===============================
 // الاتصال بقاعدة البيانات
