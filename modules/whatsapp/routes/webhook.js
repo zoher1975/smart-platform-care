@@ -1,8 +1,10 @@
 const express = require("express");
+
 const router = express.Router();
 
 // ===============================
-// ✅ Verification (Meta Webhook)
+// WhatsApp Webhook Verification
+// Meta/Facebook uses this GET route
 // ===============================
 router.get("/webhook", (req, res) => {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -11,42 +13,65 @@ router.get("/webhook", (req, res) => {
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("✅ Webhook Verified");
-    return res.status(200).send(challenge);
-  } else {
-    console.log("❌ Verification Failed");
-    return res.sendStatus(403);
+  if (!VERIFY_TOKEN) {
+    console.error("❌ WHATSAPP_VERIFY_TOKEN is missing in .env");
+    return res.sendStatus(500);
   }
+
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("✅ WhatsApp Webhook Verified");
+    return res.status(200).send(challenge);
+  }
+
+  console.log("❌ WhatsApp Webhook Verification Failed");
+  return res.sendStatus(403);
 });
 
 // ===============================
-// ✅ Incoming Messages
+// WhatsApp Incoming Messages
+// Meta/Facebook sends messages here
 // ===============================
 router.post("/webhook", async (req, res) => {
   try {
-    const data = req.body;
+    // Important: respond to Meta quickly
+    res.sendStatus(200);
 
-    console.log("📩 Incoming WhatsApp:", JSON.stringify(data, null, 2));
+    const body = req.body;
 
-    // استخراج الرسالة (هيكل Meta الرسمي)
-    const message =
-      data?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+    console.log("📩 Incoming WhatsApp Payload:");
+    console.log(JSON.stringify(body, null, 2));
 
-    if (message) {
-      const from = message.from;
-      const text = message.text?.body;
+    const entry = body?.entry?.[0];
+    const change = entry?.changes?.[0];
+    const value = change?.value;
+    const message = value?.messages?.[0];
 
-      console.log("👤 From:", from);
-      console.log("💬 Message:", text);
-
-      // 🔥 هنا تقدر تربط AI أو رد تلقائي
+    if (!message) {
+      console.log("ℹ️ No user message found in payload");
+      return;
     }
 
-    res.sendStatus(200);
+    const from = message.from;
+    const messageId = message.id;
+    const messageType = message.type;
+
+    let text = "";
+
+    if (messageType === "text") {
+      text = message.text?.body || "";
+    }
+
+    console.log("👤 From:", from);
+    console.log("🆔 Message ID:", messageId);
+    console.log("📌 Type:", messageType);
+    console.log("💬 Text:", text);
+
+    // TODO:
+    // 1. Save message to database
+    // 2. Send message to AI Router
+    // 3. Send reply back through WhatsApp Cloud API
   } catch (error) {
-    console.error("❌ Error:", error);
-    res.sendStatus(500);
+    console.error("❌ WhatsApp Webhook Error:", error);
   }
 });
 
