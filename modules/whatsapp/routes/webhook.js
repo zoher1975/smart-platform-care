@@ -1,10 +1,8 @@
 const express = require("express");
-
 const router = express.Router();
 
 // ===============================
-// WhatsApp Webhook Verification
-// Meta uses this GET route
+// Verification (Meta)
 // ===============================
 router.get("/webhook", (req, res) => {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -14,64 +12,61 @@ router.get("/webhook", (req, res) => {
   const challenge = req.query["hub.challenge"];
 
   if (!VERIFY_TOKEN) {
-    console.error("❌ WHATSAPP_VERIFY_TOKEN is missing in .env");
+    console.error("❌ Missing WHATSAPP_VERIFY_TOKEN");
     return res.sendStatus(500);
   }
 
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("✅ WhatsApp Webhook Verified");
+    console.log("✅ Webhook Verified");
     return res.status(200).send(challenge);
   }
 
-  console.log("❌ WhatsApp Webhook Verification Failed");
+  console.log("❌ Verification Failed");
   return res.sendStatus(403);
 });
 
 // ===============================
-// WhatsApp Incoming Messages
-// Meta sends incoming messages here
+// Incoming Messages
 // ===============================
 router.post("/webhook", async (req, res) => {
   try {
-    // Respond quickly to Meta
+    // IMPORTANT: reply fast to Meta
     res.sendStatus(200);
 
     const body = req.body;
-
-    console.log("📩 Incoming WhatsApp Payload:");
-    console.log(JSON.stringify(body, null, 2));
+    console.log("📩 Payload:\n", JSON.stringify(body, null, 2));
 
     const entry = body?.entry?.[0];
     const change = entry?.changes?.[0];
     const value = change?.value;
-    const message = value?.messages?.[0];
 
+    const message = value?.messages?.[0];
     if (!message) {
-      console.log("ℹ️ No user message found in payload");
+      console.log("ℹ️ No message in payload");
       return;
     }
 
     const from = message.from;
-    const messageId = message.id;
-    const messageType = message.type;
+    const type = message.type;
 
     let text = "";
-
-    if (messageType === "text") {
+    if (type === "text") {
       text = message.text?.body || "";
     }
 
     console.log("👤 From:", from);
-    console.log("🆔 Message ID:", messageId);
-    console.log("📌 Type:", messageType);
+    console.log("📌 Type:", type);
     console.log("💬 Text:", text);
 
-    // Next steps:
-    // 1. Save message to database
-    // 2. Send message to AI router
-    // 3. Send reply via WhatsApp Cloud API
-  } catch (error) {
-    console.error("❌ WhatsApp Webhook Error:", error);
+    // ===============================
+    // TODO (الخطوة التالية):
+    // 1) استدعاء AI Router:
+    //    const reply = await askAI(text);
+    // 2) إرسال الرد عبر WhatsApp API
+    // ===============================
+
+  } catch (err) {
+    console.error("❌ Webhook Error:", err);
   }
 });
 
