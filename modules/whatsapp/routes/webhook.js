@@ -34,6 +34,10 @@ router.post("/webhook", async (req, res) => {
     res.sendStatus(200);
 
     const body = req.body;
+    if (body.object !== "whatsapp_business_account") {
+  console.log("ℹ️ Ignored non-WhatsApp payload");
+  return;
+}
     console.log("📩 Payload:\n", JSON.stringify(body, null, 2));
 
     const entry = body?.entry?.[0];
