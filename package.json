@@ -1,7 +1,7 @@
 {
   "name": "smart-platform-care",
   "version": "1.0.0",
-  "description": "AI-powered SaaS platform for cloning client websites/stores and connecting them with WhatsApp automation.",
+  "description": "AI-powered SaaS platform for cloning stores and connecting them with WhatsApp automation",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,10 +10,9 @@
   "keywords": [
     "saas",
     "whatsapp",
-    "automation",
     "ai",
-    "ecommerce",
-    "nodejs"
+    "automation",
+    "ecommerce"
   ],
   "author": "Zoher Mohamed",
   "license": "MIT",
