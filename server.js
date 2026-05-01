@@ -97,10 +97,12 @@ app.use((req, res) => {
 
 // ===============================
 // DB + Server
-// ===============================
+// ============const PORT = process.env.PORT || 4000;
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+});===================
 connectDB();
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
