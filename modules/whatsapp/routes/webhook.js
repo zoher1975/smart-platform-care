@@ -4,7 +4,7 @@ const router = express.Router();
 
 // ===============================
 // WhatsApp Webhook Verification
-// Meta/Facebook uses this GET route
+// Meta uses this GET route
 // ===============================
 router.get("/webhook", (req, res) => {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -29,11 +29,11 @@ router.get("/webhook", (req, res) => {
 
 // ===============================
 // WhatsApp Incoming Messages
-// Meta/Facebook sends messages here
+// Meta sends incoming messages here
 // ===============================
 router.post("/webhook", async (req, res) => {
   try {
-    // Important: respond to Meta quickly
+    // Respond quickly to Meta
     res.sendStatus(200);
 
     const body = req.body;
@@ -66,10 +66,10 @@ router.post("/webhook", async (req, res) => {
     console.log("📌 Type:", messageType);
     console.log("💬 Text:", text);
 
-    // TODO:
+    // Next steps:
     // 1. Save message to database
-    // 2. Send message to AI Router
-    // 3. Send reply back through WhatsApp Cloud API
+    // 2. Send message to AI router
+    // 3. Send reply via WhatsApp Cloud API
   } catch (error) {
     console.error("❌ WhatsApp Webhook Error:", error);
   }
