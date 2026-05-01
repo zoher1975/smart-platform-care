@@ -1,14 +1,25 @@
 {
   "name": "smart-platform-care",
   "version": "1.0.0",
-  "description": "AI-powered project management system",
+  "description": "AI-powered SaaS platform for cloning client websites/stores and connecting them with WhatsApp automation.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
+  "keywords": [
+    "saas",
+    "whatsapp",
+    "automation",
+    "ai",
+    "ecommerce",
+    "nodejs"
+  ],
   "author": "Zoher Mohamed",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
   }
 }
