@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
 
-// Core systems
+// Core
 const ProjectManager = require("./core/projects-system");
 const CloneSystem = require("./core/clone-system");
 
@@ -18,15 +18,21 @@ const app = express();
 // ===============================
 app.use(express.json());
 
+// Logger بسيط
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
 
 // ===============================
-// Database
+// Routes
 // ===============================
-connectDB();
+
+// WhatsApp
+app.use("/api/whatsapp", whatsappWebhook);
+
+// Stores
+app.use("/api/stores", storeRoutes);
 
 // ===============================
 // Core System
@@ -34,100 +40,67 @@ connectDB();
 const manager = new ProjectManager();
 const cloneSystemInstance = new CloneSystem(manager);
 
-// ===============================
-// WhatsApp Module
-// ===============================
-app.use("/api/whatsapp", whatsappWebhook);
-
-// ===============================
-// Store System
-// ===============================
-app.use("/api/stores", storeRoutes);
-
-// ===============================
-// Project Management Routes
-// ===============================
+// Create project
 app.post("/create-project", (req, res) => {
   try {
     const { name, owner, type } = req.body;
-
     if (!name || !owner || !type) {
-      return res.status(400).json({
-        error: "name, owner, and type are required",
-      });
+      return res.status(400).json({ error: "name, owner, type required" });
     }
-
     const project = manager.createProject(name, owner, type);
     res.json(project);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
+// Add member
 app.post("/add-member", (req, res) => {
   try {
     const { projectId, member } = req.body;
-
     if (!projectId || !member) {
-      return res.status(400).json({
-        error: "projectId and member are required",
-      });
+      return res.status(400).json({ error: "projectId, member required" });
     }
-
     manager.addMember(projectId, member);
     res.json({ message: "Member added" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
+// Clone project
 app.post("/clone-project", (req, res) => {
   try {
     const { projectId, newOwner } = req.body;
-
     if (!projectId || !newOwner) {
-      return res.status(400).json({
-        error: "projectId and newOwner are required",
-      });
+      return res.status(400).json({ error: "projectId, newOwner required" });
     }
-
     const cloned = cloneSystemInstance.cloneProject(projectId, newOwner);
     res.json(cloned);
-  } catch (err) {
-    res.status(404).json({ error: err.message });
+  } catch (e) {
+    res.status(404).json({ error: e.message });
   }
 });
 
-// ===============================
-// Health Check
-// ===============================
+// Health
 app.get("/", (req, res) => {
   res.send("Smart Platform Care Backend is running 🚀");
 });
-
 app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    service: "smart-platform-care",
-    timestamp: new Date().toISOString(),
-  });
+  res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-// ===============================
-// 404 Handler
-// ===============================
+// 404
 app.use((req, res) => {
-  res.status(404).json({
-    error: "Route not found",
-    path: req.originalUrl,
-  });
+  res.status(404).json({ error: "Route not found", path: req.originalUrl });
 });
 
 // ===============================
-// Server
+// DB + Server
 // ===============================
-const PORT = process.env.PORT || 4000;
+connectDB();
 
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
