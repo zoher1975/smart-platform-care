@@ -18,7 +18,6 @@ const app = express();
 // ===============================
 app.use(express.json());
 
-// Logger بسيط
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
@@ -27,11 +26,7 @@ app.use((req, res, next) => {
 // ===============================
 // Routes
 // ===============================
-
-// WhatsApp
 app.use("/api/whatsapp", whatsappWebhook);
-
-// Stores
 app.use("/api/stores", storeRoutes);
 
 // ===============================
@@ -97,12 +92,17 @@ app.use((req, res) => {
 
 // ===============================
 // DB + Server
-// ============const PORT = process.env.PORT || 4000;
+// ===============================
+const PORT = process.env.PORT || 4000;  // ✅ أُصلح
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ DB connection failed:", err);
+    process.exit(1);
   });
-});===================
-connectDB();
-
+// ✅ حُذف connectDB() المكرر
