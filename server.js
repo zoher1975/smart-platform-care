@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const connectDB = require("./config/db");
 
@@ -93,7 +92,7 @@ app.use((req, res) => {
 // ===============================
 // DB + Server
 // ===============================
-const PORT = process.env.PORT || 4000;  // ✅ أُصلح
+const PORT = process.env.PORT || 4000;
 
 connectDB()
   .then(() => {
@@ -105,4 +104,3 @@ connectDB()
     console.error("❌ DB connection failed:", err);
     process.exit(1);
   });
-// ✅ حُذف connectDB() المكرر
